@@ -1,9 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:inetractive_widget/profile.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
-
   @override
   ProfilePageState createState() => ProfilePageState();
 }
@@ -19,14 +20,18 @@ class ProfilePageState extends State<ProfilePage> {
   Map<String, bool> hobbies = {
     "Jeu de stratégie": false,
     "Randonnée": false,
-    "VTT": false,
-    "Code": false,
+    "Ping-pong": false,
+    "Tir à l'arc": false,
     "Botanique": false,
-    "Tir à l'arc": false
+    "VTT": false
   };
+
+  ImagePicker picker = ImagePicker();
+  File? imageFile;
 
   @override
   void initState() {
+    // TODO: implement initState
     super.initState();
     surname = TextEditingController();
     name = TextEditingController();
@@ -40,6 +45,7 @@ class ProfilePageState extends State<ProfilePage> {
 
   @override
   void dispose() {
+    // TODO: implement dispose
     surname.dispose();
     name.dispose();
     secret.dispose();
@@ -48,28 +54,50 @@ class ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    //double imageSize = MediaQuery.of(context).size.width / 4;
+    double imageSize = MediaQuery.of(context).size.width / 4;
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Mon profil"),
+        title: Text("Mon profil"),
       ),
       body: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.max,
           children: [
             Card(
-                color: const Color.fromARGB(255, 114, 144, 170),
+                color: Colors.deepPurpleAccent.shade100,
                 elevation: 10,
                 child: Container(
                   width: MediaQuery.of(context).size.width,
-                  margin: const EdgeInsets.all(10),
-                  padding: const EdgeInsets.all(8),
+                  margin: EdgeInsets.all(10),
+                  padding: EdgeInsets.all(8),
                   child: Column(
                     children: [
-                      Text(myProfile.setName()),
-                      Text("Age: ${myProfile.setAge()}"),
-                      Text("Taille: ${myProfile.setHeight()}"),
-                      Text("Genre: ${myProfile.genderString()}"),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            width: MediaQuery.of(context).size.width / 3.5,
+                            child: (imageFile == null)
+                                ? Image.asset(
+                                    "lib/img/slovenija.jpg",
+                                    height: imageSize,
+                                    width: imageSize,
+                                  )
+                                : Image.file(
+                                    imageFile!,
+                                    height: imageSize,
+                                    width: imageSize,
+                                  ),
+                          ),
+                          Column(
+                            children: [
+                              Text("Age: ${myProfile.setAge()}"),
+                              Text("Taille: ${myProfile.setHeight()}"),
+                              Text("Genre: ${myProfile.genderString()}"),
+                            ],
+                          )
+                        ],
+                      ),
                       Text("Hobbies: ${myProfile.setHobbies()}"),
                       Text(
                           "Langage de programmation favori: ${myProfile.favoriteLang} "),
@@ -80,15 +108,31 @@ class ProfilePageState extends State<ProfilePage> {
                               : "Montrer secret")),
                       (showSecret)
                           ? Text(myProfile.secret)
-                          : const SizedBox(
+                          : Container(
                               height: 0,
                               width: 0,
                             ),
                     ],
                   ),
                 )),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                IconButton(
+                  onPressed: (() => getImage(source: ImageSource.camera)),
+                  icon: Icon(Icons.camera_alt_rounded),
+                  color: Colors.deepPurple,
+                ),
+                IconButton(
+                  onPressed: (() => getImage(source: ImageSource.gallery)),
+                  icon: Icon(Icons.photo_album_outlined),
+                  color: Colors.deepPurple,
+                ),
+              ],
+            ),
             const Divider(
-              color: Colors.green,
+              color: Colors.deepPurpleAccent,
               thickness: 2,
             ),
             myTitle("Modifier les infos"),
@@ -133,12 +177,12 @@ class ProfilePageState extends State<ProfilePage> {
               ],
             ),
             const Divider(
-              color: Colors.green,
+              color: Colors.deepPurpleAccent,
               thickness: 2,
             ),
             myHobbies(),
-            const Divider(
-              color: Colors.green,
+            Divider(
+              color: Colors.deepPurpleAccent,
               thickness: 2,
             ),
             myRadios()
@@ -249,8 +293,18 @@ class ProfilePageState extends State<ProfilePage> {
   Text myTitle(String text) {
     return Text(text,
         style: const TextStyle(
-            color: Color.fromARGB(255, 114, 144, 170),
+            color: Colors.deepPurple,
             fontWeight: FontWeight.bold,
             fontSize: 18));
+  }
+
+  Future getImage({required ImageSource source}) async {
+    final chosenFile = await picker.pickImage(source: source);
+    setState(() {
+      if (chosenFile == null) {
+      } else {
+        imageFile = File(chosenFile.path);
+      }
+    });
   }
 }
